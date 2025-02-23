@@ -1,0 +1,46 @@
+# Ignore Visual Studio user-specific and build files
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+bin/
+obj/
+
+# Dependencies
+packages/
+project.lock.json
+project.assets.json
+
+# ASP.NET runtime and user secrets
+*.db
+*.db-shm
+*.db-wal
+secrets.json
+appsettings.Development.json
+
+# Logs and local environment files
+logs/
+*.log
+
+# Docker
+**/[Dd]ocker*
+**/docker-compose*
+
+# Publish artifacts
+.publish/
+
+# Rider & JetBrains
+.idea/
+*.iml
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Aspire-specific files
+.env
+dotnet-aspire*
+state/
