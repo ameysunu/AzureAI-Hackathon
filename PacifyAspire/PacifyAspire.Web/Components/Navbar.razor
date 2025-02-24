@@ -1,6 +1,16 @@
 ﻿<div class="navbar">
     Pacify
-    <div class="login-navbar">Login</div>
+    <AuthorizeView>
+        <Authorized>
+            Hey, @context.User.Identity?.Name 
+        </Authorized>
+        <NotAuthorized>
+            <div class="login-navbar">
+                <a href="/MicrosoftIdentity/Account/SignIn">Login</a>
+
+              </div>
+        </NotAuthorized>
+    </AuthorizeView>
 </div>
 
 @code {
