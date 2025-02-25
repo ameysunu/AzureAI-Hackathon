@@ -45,3 +45,6 @@ Thumbs.db
 .env
 dotnet-aspire*
 state/
+
+# AppSettings
+appsettings.json
