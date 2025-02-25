@@ -7,6 +7,12 @@
     background-color: #C4B9D5;
 }
 
+
+.welcome-user-text {
+    font-size: 1.25rem;
+    color: #332b41;
+}
+
 .main-page {
     font-family: "Atkinson Hyperlegible Next", serif;
     font-optical-sizing: auto;

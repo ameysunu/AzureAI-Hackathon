@@ -2,15 +2,42 @@
 
 <div class="main-page">
     <Navbar />
-<div class="welcome-container">
-    <div class="welcome-text">
-        <h1>Welcome to Pacify!</h1>
-        <p>Your mental wellbeing companion.</p>
-        <button type="submit" class="login-button">Get Started</button>
+    <div class="welcome-container">
+        <div class="welcome-text">
+            <AuthorizeView>
+                <Authorized>
+                    <h1>
+                        @Greeting(), @context.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value!
+                    </h1>
+                    <p>Will add some random paragraph later on.</p>
+                </Authorized>
+
+                <NotAuthorized>
+                    <h1>Welcome to Pacify!</h1>
+                    <p>Your mental wellbeing companion.</p>
+                    <button onclick="location.href='/MicrosoftIdentity/Account/SignIn'" class="login-button">Get Started</button>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
     </div>
-</div>
 </div>
 
 @code {
+    public string Greeting()
+    {
+        DateTime now = DateTime.Now;
 
+        if(now.Hour > 12 && now.Hour < 16)
+        {
+            return "Good Afternoon";
+        }
+        else if (now.Hour > 16 && now.Hour <= 23)
+        {
+            return "Good Evening";
+        }
+        else
+        {
+            return "Good Morning";
+        }
+    }
 }
