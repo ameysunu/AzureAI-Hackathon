@@ -1,8 +1,32 @@
-﻿<div class="navbar">
+﻿@inject AuthenticationStateProvider AuthStateProvider
+
+<div class="navbar">
     Pacify
-    <div class="login-navbar">Login</div>
+    <AuthorizeView>
+        <Authorized>
+            <div class="login-navbar">
+                Hey, @context.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="login-navbar">
+                <a href="/MicrosoftIdentity/Account/SignIn">Login</a>
+            </div>
+        </NotAuthorized>
+    </AuthorizeView>
 </div>
 
 @code {
+    // private string loggedInUserName = "Guest";
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+
+    //     if (authState.User.Identity.IsAuthenticated)
+    //     {
+    //         loggedInUserName = authState.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value;
+    //     }
+    // }
 
 }
