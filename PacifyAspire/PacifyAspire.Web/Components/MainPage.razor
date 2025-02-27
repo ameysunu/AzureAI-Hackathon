@@ -3,6 +3,7 @@
 <div class="main-page">
     <Navbar />
     <div class="welcome-container">
+
         <div class="welcome-text">
             <AuthorizeView>
                 <Authorized>
@@ -19,8 +20,13 @@
                 </NotAuthorized>
             </AuthorizeView>
         </div>
+
+        <div class="welcome-image-container">
+            <img src="/assets/welcome.svg" class="welcome-image" alt="Welcome Image">
+        </div>
     </div>
 </div>
+
 
 @code {
     public string Greeting()

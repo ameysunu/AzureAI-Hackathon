@@ -4,14 +4,18 @@
     align-items: center;
     height: 100vh;
     padding: 2rem;
-    background-color: #C4B9D5;
+    background-color: #CFCFCF;
 }
 
-
-.welcome-user-text {
-    font-size: 1.25rem;
-    color: #332b41;
+.welcome-text {
+    flex: 1; /* Takes up available space */
 }
+
+.welcome-image {
+    width: 350px; /* Adjust width */
+    height: 350px;
+}
+
 
 .main-page {
     font-family: "Atkinson Hyperlegible Next", serif;
