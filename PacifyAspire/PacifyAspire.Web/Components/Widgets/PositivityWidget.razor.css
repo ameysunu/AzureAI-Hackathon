@@ -1,0 +1,10 @@
+﻿.card-box {
+    width: 50%;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 20px;
+    padding: 5%;
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 20px auto;
+}

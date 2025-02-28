@@ -1,0 +1,13 @@
+﻿.main-page {
+    font-family: "Atkinson Hyperlegible Next", serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    padding-top: 5%;
+    padding-left: 2%;
+    align-items: start;
+}
+
+.welcome-text {
+    color: #009995;
+    font-size: 50px;
+}

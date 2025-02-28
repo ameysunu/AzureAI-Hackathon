@@ -1,0 +1,27 @@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@page "/dashboard";
+
+<div class="main-page">
+    <Navbar />
+    <div>
+        <AuthorizeView>
+            <Authorized>
+                <p class="welcome-text"> Hey @context.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value!</p>
+                <PositivityWidget />
+            </Authorized>
+        </AuthorizeView>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity != null && !authState.User.Identity.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }
+    }
+
+}
