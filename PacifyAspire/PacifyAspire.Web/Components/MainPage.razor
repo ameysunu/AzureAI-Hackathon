@@ -10,7 +10,9 @@
                     <h1>
                         @Greeting(), @context.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value!
                     </h1>
-                    <p>Will add some random paragraph later on.</p>
+                    <p>Welcome to Pacify – your space for calm and clarity. Take a moment, breathe, and let us guide you toward peace of mind.</p>
+                    <p>Go to your dashboard to get started.</p>
+                    <button onclick="location.href='/dashboard'" class="login-button">My Dashboard</button>
                 </Authorized>
 
                 <NotAuthorized>
