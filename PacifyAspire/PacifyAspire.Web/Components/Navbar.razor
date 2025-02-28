@@ -5,14 +5,9 @@
     <AuthorizeView>
         <Authorized>
             <div class="login-navbar">
-                Hey, @context.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value
+                <a href="MicrosoftIdentity/Account/SignOut" style="text-decoration: none; color: red">Log out</a>
             </div>
         </Authorized>
-        <NotAuthorized>
-            <div class="login-navbar">
-                <a href="/MicrosoftIdentity/Account/SignIn">Login</a>
-            </div>
-        </NotAuthorized>
     </AuthorizeView>
 </div>
 
