@@ -1,0 +1,34 @@
+name: Build and Deploy Pacify Azure Functions
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Get Local Settings from Github Secrets
+        run: |
+          cd AzureFunctions/PacifyFunctions
+          echo '${{ secrets.PACIFYFUNCTIONS_LOCAL_SETTINGS }}' > local.settings.json
+
+      - name: Restore dependencies
+        run: |
+          cd AzureFunctions/PacifyFunctions
+          dotnet restore
+
+      - name: Build
+        run: |
+          cd AzureFunctions/PacifyFunctions
+          dotnet build
+      
