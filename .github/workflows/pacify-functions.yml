@@ -58,9 +58,9 @@ jobs:
           path: ./artifact
 
       - name: Azure Login
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          credentials: ${{ secrets.AZURE_SERVICE_CREDENTIALS }}
+          creds: ${{ secrets.AZURE_SERVICE_CREDENTIALS }}
           
       - name: Azure Functions Deploy
         uses: azure/functions-action@v1
