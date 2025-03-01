@@ -37,7 +37,7 @@ namespace PacifyFunctions.Helpers
 
         }
 
-        public async Task SendTextMessagePrompt(String systemText, String userText)
+        public async Task<String> SendTextMessagePrompt(String systemText, String userText)
         {
             var systemMessage = ChatMessage.CreateSystemMessage(systemText);
             var userMessage = ChatMessage.CreateUserMessage(userText);
@@ -57,11 +57,16 @@ namespace PacifyFunctions.Helpers
                 if (responseData.Text != null)
                 {
                     logger.LogInformation(responseData.Text);
-                } else
+                    return(responseData.Text);
+                } 
+                else
                 {
                     logger.LogDebug("Response null from OpenAI");
+                    return null;
                 }
             }
+
+            return null;
         }
     }
 }
