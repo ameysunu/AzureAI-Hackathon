@@ -72,5 +72,4 @@ jobs:
       - name: Deploy Local Settings
         run: |
           echo "${{ secrets.PACIFYFUNCTIONS_LOCAL_SETTINGS }}" > ./artifact/local.settings.json
-          az functionapp config appsettings set --name ${{ secrets.AZURE_FUNCTION_APP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --settings local.settings.json
-
+          az functionapp config appsettings set --name ${{ secrets.AZURE_FUNCTION_APP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --settings @./artifact/local.settings.json
