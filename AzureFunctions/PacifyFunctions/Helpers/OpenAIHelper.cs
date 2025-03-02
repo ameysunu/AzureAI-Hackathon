@@ -2,6 +2,7 @@
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using OpenAI.Chat;
+using OpenAI.Images;
 using System;
 using System.ClientModel;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace PacifyFunctions.Helpers
         public string openAiEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
         public AzureOpenAIClient azureClient;
         public ChatClient chatClient;
+        public ImageClient imageClient;
         public ILogger logger;
 
         public OpenAIHelper(ILogger logger)
@@ -33,8 +35,21 @@ namespace PacifyFunctions.Helpers
                 new ApiKeyCredential(apiKey));
 
             chatClient = azureClient.GetChatClient("gpt-4o-mini");
+            imageClient = azureClient.GetImageClient("dall-e-3");
+
             logger.LogInformation("Azure Open AI Initiated");
 
+        }
+
+        public async Task GenerateImagePrompt(String imagePrompt)
+        {
+            var imageGenOptions = new ImageGenerationOptions()
+            {
+                Size = GeneratedImageSize.W1792xH1024
+            };
+
+            var imageGenerator = await imageClient.GenerateImageAsync(imagePrompt, imageGenOptions);
+            logger.LogInformation(imageGenerator.Value.ImageUri.ToString());
         }
 
         public async Task<String> SendTextMessagePrompt(String systemText, String userText)
