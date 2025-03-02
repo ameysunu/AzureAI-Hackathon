@@ -17,5 +17,8 @@ namespace PacifyFunctions.Models
 
         [JsonProperty("timestamp")]
         public DateTime TimeStamp { get; set; }
+
+        [JsonProperty("image")]
+        public String Image { get; set; }
     }
 }

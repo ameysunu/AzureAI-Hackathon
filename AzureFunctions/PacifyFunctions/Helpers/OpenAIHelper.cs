@@ -41,7 +41,7 @@ namespace PacifyFunctions.Helpers
 
         }
 
-        public async Task GenerateImagePrompt(String imagePrompt)
+        public async Task<String> GenerateImagePrompt(String imagePrompt)
         {
             var imageGenOptions = new ImageGenerationOptions()
             {
@@ -49,7 +49,14 @@ namespace PacifyFunctions.Helpers
             };
 
             var imageGenerator = await imageClient.GenerateImageAsync(imagePrompt, imageGenOptions);
-            logger.LogInformation(imageGenerator.Value.ImageUri.ToString());
+           
+            if(imageGenerator != null)
+            {
+                logger.LogInformation(imageGenerator.Value.ImageUri.ToString());
+                return imageGenerator.Value.ImageUri.ToString();
+            }
+
+            return null;
         }
 
         public async Task<String> SendTextMessagePrompt(String systemText, String userText)

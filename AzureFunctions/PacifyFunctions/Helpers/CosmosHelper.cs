@@ -29,14 +29,15 @@ namespace PacifyFunctions.Helpers
             container = cosmosClient.GetContainer(databaseName, containerName);
         }
 
-        public async Task InsertMessage(String message)
+        public async Task InsertMessage(String message, String imageUri)
         {
             try
             {
                 var thought = new Thoughts
                 {
                     Message = message,
-                    TimeStamp = DateTime.Now
+                    TimeStamp = DateTime.Now,
+                    Image = imageUri
                 };
 
                 await container.CreateItemAsync(thought, new PartitionKey(thought.Id));

@@ -29,15 +29,15 @@ namespace PacifyFunctions
                 OpenAIHelper openAIHelper = new OpenAIHelper(_logger);
                 CosmosHelper cosmosHelper = new CosmosHelper(_logger);
 
-                await openAIHelper.GenerateImagePrompt("A calm positive image depicting leaves or sea, has to go well with a light background");
 
                 var responsePrompt = await openAIHelper.SendTextMessagePrompt("You're a positive thoughts reflective machine", "Generate a positive thought for the day");
+                var dalleUri = await openAIHelper.GenerateImagePrompt("A calm positive image depicting leaves or sea, has to go well with a light background");
 
-                if(responsePrompt!= null)
+                if (responsePrompt!= null && dalleUri != null)
                 {
                     _logger.LogInformation("Initiating Cosmos Db");
                     cosmosHelper.InitCosmosDb("positivitymessages");
-                    await cosmosHelper.InsertMessage(responsePrompt);
+                    await cosmosHelper.InsertMessage(responsePrompt, dalleUri);
                 }
 
 
