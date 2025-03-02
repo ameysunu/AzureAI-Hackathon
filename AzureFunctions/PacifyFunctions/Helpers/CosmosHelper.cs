@@ -48,5 +48,32 @@ namespace PacifyFunctions.Helpers
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<Thoughts> GetThought()
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving thoughts");
+
+                QueryDefinition query = new QueryDefinition("SELECT * FROM c");
+                using FeedIterator<Thoughts> resultSet = container.GetItemQueryIterator<Thoughts>(query);
+
+                if (resultSet.HasMoreResults)
+                {
+                    FeedResponse<Thoughts> response = await resultSet.ReadNextAsync();
+                    if (response != null)
+                    {
+                        return response.FirstOrDefault();
+                    }
+                }
+            }
+            catch (CosmosException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+
+            return null;
+        }
     }
 }
