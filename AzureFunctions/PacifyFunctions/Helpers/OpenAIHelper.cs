@@ -2,6 +2,7 @@
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Logging;
 using OpenAI.Chat;
+using OpenAI.Images;
 using System;
 using System.ClientModel;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace PacifyFunctions.Helpers
         public string openAiEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
         public AzureOpenAIClient azureClient;
         public ChatClient chatClient;
+        public ImageClient imageClient;
         public ILogger logger;
 
         public OpenAIHelper(ILogger logger)
@@ -33,11 +35,31 @@ namespace PacifyFunctions.Helpers
                 new ApiKeyCredential(apiKey));
 
             chatClient = azureClient.GetChatClient("gpt-4o-mini");
+            imageClient = azureClient.GetImageClient("dall-e-3");
+
             logger.LogInformation("Azure Open AI Initiated");
 
         }
 
-        public async Task SendTextMessagePrompt(String systemText, String userText)
+        public async Task<String> GenerateImagePrompt(String imagePrompt)
+        {
+            var imageGenOptions = new ImageGenerationOptions()
+            {
+                Size = GeneratedImageSize.W1792xH1024
+            };
+
+            var imageGenerator = await imageClient.GenerateImageAsync(imagePrompt, imageGenOptions);
+           
+            if(imageGenerator != null)
+            {
+                logger.LogInformation(imageGenerator.Value.ImageUri.ToString());
+                return imageGenerator.Value.ImageUri.ToString();
+            }
+
+            return null;
+        }
+
+        public async Task<String> SendTextMessagePrompt(String systemText, String userText)
         {
             var systemMessage = ChatMessage.CreateSystemMessage(systemText);
             var userMessage = ChatMessage.CreateUserMessage(userText);
@@ -57,11 +79,16 @@ namespace PacifyFunctions.Helpers
                 if (responseData.Text != null)
                 {
                     logger.LogInformation(responseData.Text);
-                } else
+                    return(responseData.Text);
+                } 
+                else
                 {
                     logger.LogDebug("Response null from OpenAI");
+                    return null;
                 }
             }
+
+            return null;
         }
     }
 }
