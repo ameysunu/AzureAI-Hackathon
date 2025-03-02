@@ -1,7 +1,29 @@
-﻿<div class="card-box">
-    Test Paragraph! Meow Meow
+﻿@inject IHttpClientFactory HttpClientFactory
+
+<div class="card-box">
+    @if(data != null)
+    {
+        @data.Message
+    } else
+    {
+        <p>Loading...</p>
+    }
 </div>
 
 @code {
+    private Thoughts data;
 
+    public class Thoughts
+    {
+        public string Id { get; set; }
+        public string Message { get; set; }
+        public DateTime Timestamp { get; set; }
+        public String Image { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var httpClient = HttpClientFactory.CreateClient();
+        data = await httpClient.GetFromJsonAsync<Thoughts>("https://localhost:7563/thoughts");  
+    }
 }

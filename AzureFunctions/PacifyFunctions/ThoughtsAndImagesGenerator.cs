@@ -27,7 +27,19 @@ namespace PacifyFunctions
                 _logger.LogInformation("ThoughtsAndImagesGeneratorfunction processed a request.");
 
                 OpenAIHelper openAIHelper = new OpenAIHelper(_logger);
-                await openAIHelper.SendTextMessagePrompt("You're a positive thoughts reflective machine", "Generate a positive thought for the day");
+                CosmosHelper cosmosHelper = new CosmosHelper(_logger);
+
+
+                var responsePrompt = await openAIHelper.SendTextMessagePrompt("You're a positive thoughts reflective machine", "Generate a positive thought for the day");
+                var dalleUri = await openAIHelper.GenerateImagePrompt("A calm positive image depicting leaves or sea, has to go well with a light background");
+
+                if (responsePrompt!= null && dalleUri != null)
+                {
+                    _logger.LogInformation("Initiating Cosmos Db");
+                    cosmosHelper.InitCosmosDb("positivitymessages");
+                    await cosmosHelper.InsertMessage(responsePrompt, dalleUri);
+                }
+
 
                 return new OkObjectResult("Welcome to Azure Functions!");
 
