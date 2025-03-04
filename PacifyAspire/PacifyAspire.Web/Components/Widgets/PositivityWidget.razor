@@ -23,7 +23,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Build();
+
         var httpClient = HttpClientFactory.CreateClient();
-        data = await httpClient.GetFromJsonAsync<Thoughts>("https://localhost:7563/thoughts");  
+        data = await httpClient.GetFromJsonAsync<Thoughts>($"{config["ASPIRE_WEBAPISERVICE"]}/thoughts");
     }
 }

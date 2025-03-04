@@ -20,6 +20,7 @@ project.assets.json
 *.db-wal
 secrets.json
 appsettings.Development.json
+appsettings.json
 
 # Logs and local environment files
 logs/
