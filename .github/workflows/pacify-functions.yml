@@ -35,14 +35,13 @@ jobs:
       - name: Publish
         run: | 
           cd AzureFunctions/PacifyFunctions
-          dotnet publish --configuration Release --output ./publish
+          dotnet publish --configuration Release --output $GITHUB_WORKSPACE/artifact
           
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: pacify-function-artifact
-          path: AzureFunctions/PacifyFunctions/publish/
-
+          path: $GITHUB_WORKSPACE/artifact
 
   
   deploy:
@@ -50,9 +49,7 @@ jobs:
     needs: build
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+    
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
@@ -61,11 +58,12 @@ jobs:
 
           
       - name: Azure Functions Deploy
-        uses: azure/functions-action@v1
+        uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ secrets.AZURE_FUNCTION_APP_NAME }} 
-          package: ./artifact
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          app-name: ${{ secrets.AZURE_FUNCTION_APP_NAME }}
+          package: ./artifact
+
 
   #  az ad sp create-for-rbac --name "github-actions" --role contributor --scopes /subscriptions/{subscription-id}/resourceGroups/{resource-group-name} --sdk-auth
 
