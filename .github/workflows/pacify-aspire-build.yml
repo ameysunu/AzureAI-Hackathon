@@ -30,11 +30,13 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Get App Settings from Github Secrets
+      - name: Get App Settings from Github Secrets - Web App
         run: |
           cd PacifyAspire/PacifyAspire.Web 
           echo '${{ secrets.PACIFYASPIRE_WEB_APPSETTINGS }}' > appsettings.json
-
+          
+      - name: Get App Settings from Github Secrets - Api Service
+        run: | 
           cd PacifyAspire/PacifyAspire.ApiService
           echo '${{ secrets.PACIFY_APISERVICES_JSON }}' > appsettings.json
 
