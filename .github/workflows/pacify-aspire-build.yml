@@ -4,23 +4,41 @@ on:
   push:
     branches: [ "master" ]
 
+permissions:
+  id-token: write
+  contents: read    
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install azd
+        uses: Azure/setup-azd@v2
+
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
-      - name: Get App Settings from Github Secrets
+      - name: Get App Settings from Github Secrets - Web App
         run: |
           cd PacifyAspire/PacifyAspire.Web 
           echo '${{ secrets.PACIFYASPIRE_WEB_APPSETTINGS }}' > appsettings.json
+          
+      - name: Get App Settings from Github Secrets - Api Service
+        run: | 
+          cd PacifyAspire/PacifyAspire.ApiService
+          echo '${{ secrets.PACIFY_APISERVICES_JSON }}' > appsettings.json
 
       - name: Restore dependencies
         run: |
@@ -32,14 +50,22 @@ jobs:
           cd PacifyAspire
           dotnet build
           
-      - name: Publish
+      - name: Log in with Azure (Federated Credentials)
+        run: |
+          azd auth login `
+            --client-id "$Env:AZURE_CLIENT_ID" `
+            --federated-credential-provider "github" `
+            --tenant-id "$Env:AZURE_TENANT_ID"
+        shell: pwsh
+
+      - name: Provision Infrastructure
         run: |
           cd PacifyAspire
-          dotnet publish -c Release -o publish
+          azd provision --no-prompt
+        env:
+          AZD_INITIAL_ENVIRONMENT_CONFIG: ${{ secrets.AZD_INITIAL_ENVIRONMENT_CONFIG }}
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'ameyplayservice'
-          publish-profile: ${{ secrets.PACIFY_APPSERVICE_PUBLISH_PROFILE }}
-          package: PacifyAspire/publish
+      - name: Deploy Application
+        run: | 
+          cd PacifyAspire
+          azd deploy --no-prompt

@@ -11,7 +11,20 @@
 
         public async Task<string> GetDataAsync()
         {
-            return await _httpClient.GetStringAsync("http://localhost:7128/api/GetThoughtsImages");
+            var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Build();
+
+            var isAppTest = config["IsAppTest"];
+
+            if (isAppTest == "false")
+            {
+                return await _httpClient.GetStringAsync("http://localhost:7128/api/GetThoughtsImages");
+            } else
+            {
+                return await _httpClient.GetStringAsync($"{config["AzFaGetThoughtsImages"]}");
+            }
         }
     }
 
