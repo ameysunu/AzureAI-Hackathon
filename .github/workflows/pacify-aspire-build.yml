@@ -35,6 +35,9 @@ jobs:
           cd PacifyAspire/PacifyAspire.Web 
           echo '${{ secrets.PACIFYASPIRE_WEB_APPSETTINGS }}' > appsettings.json
 
+          cd PacifyAspire/PacifyAspire.ApiService
+          echo '${{ secrets.PACIFY_APISERVICES_JSON }}' > appsettings.json
+
       - name: Restore dependencies
         run: |
           cd PacifyAspire
