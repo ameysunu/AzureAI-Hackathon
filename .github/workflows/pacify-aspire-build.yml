@@ -40,6 +40,6 @@ jobs:
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'ameyplayservice'
+          app-name: 'pacify'
           publish-profile: ${{ secrets.PACIFY_APPSERVICE_PUBLISH_PROFILE }}
           package: PacifyAspire/publish
