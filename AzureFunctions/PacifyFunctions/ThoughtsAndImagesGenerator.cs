@@ -28,6 +28,7 @@ namespace PacifyFunctions
 
                 OpenAIHelper openAIHelper = new OpenAIHelper(_logger);
                 CosmosHelper cosmosHelper = new CosmosHelper(_logger);
+                StorageHelper storageHelper = new StorageHelper("azureaicontainer");
 
 
                 var responsePrompt = await openAIHelper.SendTextMessagePrompt("You're a positive thoughts reflective machine", "Generate a positive thought for the day");
@@ -36,8 +37,11 @@ namespace PacifyFunctions
                 if (responsePrompt!= null && dalleUri != null)
                 {
                     _logger.LogInformation("Initiating Cosmos Db");
+                    byte[] dalleImageInBytes = await cosmosHelper.ConvertDalleUriToImageBytes(dalleUri);
+                    var blobUrl = await storageHelper.UploadToBlobAsync(dalleImageInBytes, "dalleimages");
+
                     cosmosHelper.InitCosmosDb("positivitymessages");
-                    await cosmosHelper.InsertMessage(responsePrompt, dalleUri);
+                    await cosmosHelper.InsertMessage(responsePrompt, blobUrl);
                 }
 
 
