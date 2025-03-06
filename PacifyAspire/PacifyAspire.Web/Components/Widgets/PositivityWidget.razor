@@ -10,25 +10,9 @@
     }
 </div>
 
+
 @code {
-    private Thoughts data;
 
-    public class Thoughts
-    {
-        public string Id { get; set; }
-        public string Message { get; set; }
-        public DateTime Timestamp { get; set; }
-        public String Image { get; set; }
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var config = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddEnvironmentVariables()
-    .Build();
-
-        var httpClient = HttpClientFactory.CreateClient();
-        data = await httpClient.GetFromJsonAsync<Thoughts>($"{config["ASPIRE_WEBAPISERVICE"]}/thoughts");
-    }
+    [Parameter]
+    public Thoughts? data { get; set; }
 }

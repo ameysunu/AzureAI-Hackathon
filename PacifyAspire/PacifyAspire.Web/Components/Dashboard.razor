@@ -1,5 +1,6 @@
 ﻿@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager NavigationManager
+@inject IHttpClientFactory HttpClientFactory
 @page "/dashboard";
 
 <div class="main-page">
@@ -8,20 +9,36 @@
         <AuthorizeView>
             <Authorized>
                 <p class="welcome-text"> Hey @context.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value!</p>
-                <PositivityWidget />
+
+                @if (data != null)
+                {
+                    <PositivityWidget data = "data" />
+
+                    <div>
+                        <img src="@data.Image" alt="Background Image" width="500" height="600">
+                    </div>
+
+                } else
+                {
+                    <p>Loading...</p>
+                }
+
             </Authorized>
         </AuthorizeView>
     </div>
 </div>
 
 @code {
-    protected override async Task OnParametersSetAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        if (authState.User.Identity != null && !authState.User.Identity.IsAuthenticated)
-        {
-            NavigationManager.NavigateTo("/", forceLoad: true);
-        }
-    }
+    private Thoughts data;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Build();
+
+        var httpClient = HttpClientFactory.CreateClient();
+        data = await httpClient.GetFromJsonAsync<Thoughts>($"{config["ASPIRE_WEBAPISERVICE"]}/thoughts");
+    }
 }

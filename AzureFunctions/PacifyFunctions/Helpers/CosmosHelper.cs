@@ -75,5 +75,11 @@ namespace PacifyFunctions.Helpers
 
             return null;
         }
+
+        public async Task<byte[]> ConvertDalleUriToImageBytes(String uri)
+        {
+            using HttpClient client = new HttpClient();
+            return await client.GetByteArrayAsync(uri);
+        }
     }
 }
