@@ -3,7 +3,7 @@
 @inject IHttpClientFactory HttpClientFactory
 @page "/dashboard";
 
-<div class="main-page">
+<div class="main-page" style="@(data != null ? $"background-image: url('{data.Image}'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 100vh;" : "")">
     <Navbar />
     <div>
         <AuthorizeView>
@@ -12,13 +12,9 @@
 
                 @if (data != null)
                 {
-                    <PositivityWidget data = "data" />
-
-                    <div>
-                        <img src="@data.Image" alt="Background Image" width="500" height="600">
-                    </div>
-
-                } else
+                    <PositivityWidget data="data" />
+                }
+                else
                 {
                     <p>Loading...</p>
                 }
@@ -28,7 +24,10 @@
     </div>
 </div>
 
-@code {
+
+
+@code 
+{
     private Thoughts data;
 
     protected override async Task OnInitializedAsync()
