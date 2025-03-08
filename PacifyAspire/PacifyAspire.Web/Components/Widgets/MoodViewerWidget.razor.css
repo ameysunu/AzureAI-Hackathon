@@ -1,0 +1,24 @@
+﻿.card-box {
+    width: 20%;
+    background-color: #606d8c;
+    color: white;
+    border-radius: 20px;
+    padding: 5%;
+    text-align: left;
+    font-size: 1.2rem;
+    margin: 20px 0;
+    align-self: flex-start;
+}
+
+.welcome-image {
+    width: 100%;
+    height: 50%;
+}
+
+.card-box:hover {
+    animation: ease-in;
+    background-color: #CDCDCD;
+    color: #2f4858;
+    border: 2px solid transparent;
+    border-color: #2f4858;
+}
