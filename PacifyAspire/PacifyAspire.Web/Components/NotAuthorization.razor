@@ -1,0 +1,50 @@
+﻿
+
+<style>
+    .not-authorized-page {
+        font-family: "Atkinson Hyperlegible Next", serif;
+        font-optical-sizing: auto;
+        font-style: normal;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 100vh;
+        padding: 2rem;
+        background-color: #CFCFCF;
+    }
+
+    .login-button {
+        padding: 0.75rem;
+        margin-top: 1rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .login-button:hover {
+        background: #0056b3;
+    }
+
+    .not-authorized-text {
+        flex: 1;
+        max-width: 50%;
+        padding-right: 2rem;
+        height: 100vh;
+    }
+
+</style>
+
+<div>
+    <Navbar />
+    <div class="not-authorized-text">
+    <h2> Ohh Ohh! You've wandered into a territory that requires you to sign in. </h2>
+    <div> Don't worry we got you! </div>
+    <button onclick="location.href='/MicrosoftIdentity/Account/SignIn'" class="login-button">Sign in or Sign up</button>
+    </div>
+</div>
+
+@code {
+
+}

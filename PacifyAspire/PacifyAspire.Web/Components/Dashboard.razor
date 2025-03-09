@@ -3,32 +3,50 @@
 @inject IHttpClientFactory HttpClientFactory
 @page "/dashboard";
 
-<div class="main-page">
+<div class="main-page" style="@(data != null ? $"background-image: url('{data.Image}'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 100vh;" : "")">
     <Navbar />
     <div>
         <AuthorizeView>
             <Authorized>
-                <p class="welcome-text"> Hey @context.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value!</p>
+                <div style="display: flex; height: 100vh;">
+                    <div style="flex: 1; padding: 20px;">
+                        <p class="welcome-text">
+                            Hey @context.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value!
+                        </p>
 
-                @if (data != null)
-                {
-                    <PositivityWidget data = "data" />
+                        @if (data != null)
+                        {
+                            <PositivityWidget data="data" />
+                        }
+                        else
+                        {
+                            <p>Loading...</p>
+                        }
 
-                    <div>
-                        <img src="@data.Image" alt="Background Image" width="500" height="600">
+                        <h2> Mood Blogger </h2>
+
+                        <div style="display: flex; gap: 20px;">
+                            <MoodLoggerWidget />
+                            <MoodViewerWidget />
+                        </div>
                     </div>
-
-                } else
-                {
-                    <p>Loading...</p>
-                }
+                    <div style="padding: 15px">
+                        <NavigationWidget />
+                    </div>
+                </div>
 
             </Authorized>
+            <NotAuthorized>
+                <NotAuthorization />
+            </NotAuthorized>
         </AuthorizeView>
     </div>
 </div>
 
-@code {
+
+
+@code 
+{
     private Thoughts data;
 
     protected override async Task OnInitializedAsync()
@@ -38,7 +56,20 @@
     .AddEnvironmentVariables()
     .Build();
 
-        var httpClient = HttpClientFactory.CreateClient();
-        data = await httpClient.GetFromJsonAsync<Thoughts>($"{config["ASPIRE_WEBAPISERVICE"]}/thoughts");
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authState != null && authState.User != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+        {
+            var httpClient = HttpClientFactory.CreateClient();
+
+            if (config["isTest"] == "true")
+            {
+                data = await httpClient.GetFromJsonAsync<Thoughts>($"https://localhost:7563/thoughts");
+            }
+            else
+            {
+                data = await httpClient.GetFromJsonAsync<Thoughts>($"{config["ASPIRE_WEBAPISERVICE"]}/thoughts");
+            }
+        }
     }
 }
