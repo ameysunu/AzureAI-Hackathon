@@ -22,6 +22,8 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddHttpClient();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<HttpContextAccessor>();
+builder.Services.AddSingleton<ThoughtsController>();
+
 // This is where you wire up to events to detect when a user Log in
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(options =>
