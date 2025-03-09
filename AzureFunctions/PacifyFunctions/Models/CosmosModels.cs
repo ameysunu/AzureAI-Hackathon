@@ -21,4 +21,14 @@ namespace PacifyFunctions.Models
         [JsonProperty("image")]
         public String Image { get; set; }
     }
+
+    public class MoodLogs
+    {
+        public string id { get; set; } = Guid.NewGuid().ToString();
+        public string mood { get; set; }
+        public string moodDescription { get; set; }
+        public string moodIntensity { get; set; }
+        public DateTime moodDate { get; set; }
+        public string userId { get; set; }
+    }
 }
