@@ -49,6 +49,19 @@ namespace PacifyFunctions.Helpers
             }
         }
 
+        public async Task InsertMoods(MoodLogs moodLogs)
+        {
+            try
+            {
+                await container.CreateItemAsync(moodLogs, new PartitionKey(moodLogs.id));
+            }
+            catch (CosmosException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<Thoughts> GetThought()
         {
             try

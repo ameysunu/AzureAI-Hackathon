@@ -1,13 +1,11 @@
-﻿@inject ThoughtsController ThoughtsController;
+﻿@inject ThoughtsController ThoughtsController
 @inject NavigationManager Navigation
 @inject IHttpClientFactory HttpClientFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 @page "/create-mood"
 
 
-<style>
-
-
-</style>
 <div class="main-page" style="@(ThoughtsController.thoughts != null ? $"background-image: url('{ThoughtsController.thoughts.Image}'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 100vh;" : "")">
     <Navbar />
     <div>
@@ -65,12 +63,15 @@
         {
             var queryString = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uriComponents);
 
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
             MoodLogs moodLogs = new MoodLogs();
 
             moodLogs.Mood = queryString.ContainsKey("mood") ? queryString["mood"] : string.Empty;
             moodLogs.MoodDescription = queryString.ContainsKey("mood-description") ? queryString["mood-description"] : string.Empty;
             moodLogs.MoodIntensity = queryString.ContainsKey("intensity") ? queryString["intensity"] : string.Empty;
             moodLogs.MoodDate = queryString.ContainsKey("mood-date") ? DateTime.Parse(queryString["mood-date"]) : DateTime.Now;
+            moodLogs.UserId = authState.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
 
             var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
