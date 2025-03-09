@@ -27,13 +27,12 @@ namespace PacifyAspire.ApiService
 
                 if (isAppTest == "false")
                 {
-                    await _httpClient.PostAsJsonAsync($"{config["AzFaMoodsCreator"]}", moodLogs);
+                    await _httpClient.PostAsJsonAsync("http://localhost:7128/api/MoodCreator", moodLogs);
                     return "Success";
                 }
                 else
                 {
-                    
-                    await _httpClient.PostAsJsonAsync("http://localhost:7128/api/MoodCreator", moodLogs);
+                    await _httpClient.PostAsJsonAsync($"{config["AzFaMoodsCreator"]}", moodLogs);
                     return "Success";
                 }
             } 
