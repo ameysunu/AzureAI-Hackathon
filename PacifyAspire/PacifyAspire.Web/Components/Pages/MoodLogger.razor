@@ -1,22 +1,11 @@
 ﻿@inject ThoughtsController ThoughtsController;
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpClientFactory
 @page "/create-mood"
 
 
 <style>
-    .main-page {
-        font-family: "Atkinson Hyperlegible Next", serif;
-        font-optical-sizing: auto;
-        font-style: normal;
-        padding-top: 5%;
-        padding-left: 2%;
-        flex-direction: column;
-        align-items: flex-start;
-    }
 
-    .welcome-text {
-        color: #009995;
-        font-size: 50px;
-    }
 
 </style>
 <div class="main-page" style="@(ThoughtsController.thoughts != null ? $"background-image: url('{ThoughtsController.thoughts.Image}'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 100vh;" : "")">
@@ -29,7 +18,33 @@
                         <p class="welcome-text">
                             Add a Mood
                         </p>
-                    </div>>
+
+                        <div class="container">
+                            <h1>How Are You Feeling Today?</h1>
+
+                            <form id="moodForm" @formname="moodForm">
+                                <AntiforgeryToken />
+
+                                <label for="mood">Your Mood:</label>
+                                <input type="text" id="mood" name="mood" placeholder="Happy, Sad, Excited..." required>
+
+                                <label for="mood-description">Describe Your Mood:</label>
+                                <textarea id="mood-description" name="mood-description" placeholder="Write a little about your day..." rows="4" required></textarea>
+
+                                <label for="mood-intensity">Mood Intensity:</label>
+                                <div class="radio-group" >
+                                    <label><input type="radio" name="intensity" value="Low" required> Low</label>
+                                    <label><input type="radio" name="intensity" value="Moderate"> Moderate</label>
+                                    <label><input type="radio" name="intensity" value="High"> High</label>
+                                </div>
+
+                                <label for="mood-date">Date:</label>
+                                <input type="date" id="mood-date" name="mood-date" required>
+
+                                <button type="submit">Log Mood</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
             </Authorized>
@@ -41,5 +56,37 @@
 </div>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        var uri = Navigation.Uri;
 
+        var uriComponents = new Uri(uri).Query;
+        if (!string.IsNullOrEmpty(uriComponents))
+        {
+            var queryString = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uriComponents);
+
+            MoodLogs moodLogs = new MoodLogs();
+
+            moodLogs.Mood = queryString.ContainsKey("mood") ? queryString["mood"] : string.Empty;
+            moodLogs.MoodDescription = queryString.ContainsKey("mood-description") ? queryString["mood-description"] : string.Empty;
+            moodLogs.MoodIntensity = queryString.ContainsKey("intensity") ? queryString["intensity"] : string.Empty;
+            moodLogs.MoodDate = queryString.ContainsKey("mood-date") ? DateTime.Parse(queryString["mood-date"]) : DateTime.Now;
+
+            var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables()
+    .Build();
+
+            var httpClient = HttpClientFactory.CreateClient();
+
+            if (config["isTest"] == "true")
+            {
+                await httpClient.PostAsJsonAsync("https://localhost:7563/createmoods", moodLogs);
+            }
+            else
+            {
+                await httpClient.PostAsJsonAsync($"{config["ASPIRE_WEBAPISERVICE"]}/createmoods", moodLogs);
+            }
+        }
+    }
 }

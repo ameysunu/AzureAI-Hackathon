@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using PacifyAspire.ApiService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
 builder.Services.AddHttpClient<ThoughtsApi>();
+builder.Services.AddHttpClient<MoodLoggerApi>();
 
 var app = builder.Build();
 
@@ -26,6 +28,25 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/thoughts", async (ThoughtsApi thoughtsApi) =>
 {
     return await thoughtsApi.GetDataAsync(); 
+});
+
+
+app.MapPost("/createmoods", async (MoodLogs moodLogs, [FromServices] MoodLoggerApi moodLoggerApi) =>
+{
+    if (moodLogs == null)
+    {
+        return Results.BadRequest("Invalid mood data.");
+    }
+
+
+    var result = await moodLoggerApi.CreateMoods(moodLogs);
+
+    if (result.Contains("Exception"))
+    {
+        return Results.InternalServerError(result);
+    }
+
+    return Results.Ok(result);
 });
 
 
