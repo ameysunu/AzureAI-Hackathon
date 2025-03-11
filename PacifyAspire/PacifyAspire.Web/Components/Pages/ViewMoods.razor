@@ -1,0 +1,110 @@
+﻿@inject ThoughtsController ThoughtsController
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpClientFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+
+@page "/view-mood"
+
+<div class="main-page" style="@(ThoughtsController.thoughts != null ? $"background-image: url('{ThoughtsController.thoughts.Image}'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 100vh;" : "")">
+    <Navbar />
+    <div>
+        <AuthorizeView>
+            <Authorized>
+                <div style="display: flex; height: 100vh;">
+                    <div style="flex: 1; padding: 20px;">
+                        <p class="welcome-text">
+                            All Moods
+                        </p>
+
+                        <style>
+                            .allmoods-container {
+                            background-color: #6366b4;
+                            color: white;
+                            padding: 20px;
+                            border-radius: 20px;
+                            }
+
+                            .allmoods-item {
+                            border-radius: 20px;
+                            padding: 15px;
+                            background-color: #989AC7;
+                            }
+                        </style>
+
+                        <div class="allmoods-container">
+                            <br />
+
+                            @if (allMoodLogs.Count > 0)
+                            {
+                                @foreach(var mood in allMoodLogs)
+                                {
+                                    <p class="allmoods-item"> @mood.Mood </p>
+                                }
+
+                            } 
+                            else
+                            {
+                                <p class="allmoods-item"> No mood found.</p>
+                            }
+
+                        </div>
+                    </div>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <NotAuthorization />
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</div>
+@code {
+
+    List<MoodLogs> allMoodLogs = new List<MoodLogs>();
+
+    private bool _isFirstRender = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || !_isFirstRender) return;
+        _isFirstRender = false;
+
+        await FetchMoodLogs();
+    }
+
+    private async Task FetchMoodLogs()
+    {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var UserId = authState.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+
+        if (string.IsNullOrEmpty(UserId))
+        {
+            Console.WriteLine("User ID is null or empty.");
+            return;
+        }
+
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var httpClient = HttpClientFactory.CreateClient();
+
+        string apiUrl = config["isTest"] == "true"
+            ? $"https://localhost:7563/getmoodbyuser?userId={UserId}"
+            : $"{config["ASPIRE_WEBAPISERVICE"]}/getmoodbyuser?userId={UserId}";
+
+        try
+        {
+            allMoodLogs = await httpClient.GetFromJsonAsync<List<MoodLogs>>(apiUrl);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching mood logs: {ex.Message}");
+        }
+    }
+
+
+}
