@@ -17,12 +17,7 @@ namespace PacifyAspire.ApiService
 
             try
             {
-
-                var config = new ConfigurationBuilder()
-.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-.AddEnvironmentVariables()
-.Build();
-
+                var config = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).AddEnvironmentVariables().Build();
                 var isAppTest = config["IsAppTest"];
 
                 if (isAppTest == "false")
@@ -35,7 +30,7 @@ namespace PacifyAspire.ApiService
                     await _httpClient.PostAsJsonAsync($"{config["AzFaMoodsCreator"]}", moodLogs);
                     return "Success";
                 }
-            } 
+            }
             catch (Exception ex)
             {
                 return $"Exception caught: {ex.Message}";

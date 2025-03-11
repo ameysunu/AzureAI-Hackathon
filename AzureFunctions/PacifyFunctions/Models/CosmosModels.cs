@@ -31,4 +31,9 @@ namespace PacifyFunctions.Models
         public DateTime moodDate { get; set; }
         public string userId { get; set; }
     }
+
+    public class MoodViewData
+    {
+        public string userId { get; set; }
+    }
 }

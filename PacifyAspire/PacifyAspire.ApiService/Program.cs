@@ -14,6 +14,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddHttpClient<ThoughtsApi>();
 builder.Services.AddHttpClient<MoodLoggerApi>();
+builder.Services.AddHttpClient<GetMoodsApi>();
 
 var app = builder.Build();
 
@@ -47,6 +48,26 @@ app.MapPost("/createmoods", async (MoodLogs moodLogs, [FromServices] MoodLoggerA
     }
 
     return Results.Ok(result);
+});
+
+app.MapGet("/getmoodbyuser", async (HttpContext context, [FromServices] GetMoodsApi getMoodsApi) =>
+{
+    var userId = context.Request.Query["userId"].ToString();
+
+    if (string.IsNullOrEmpty(userId))
+    {
+        return Results.BadRequest("User ID is null or empty");
+    }
+
+    try
+    {
+        List<MoodLogs> result = await getMoodsApi.GetMoodsByUser(new MoodViewData { userId = userId });
+        return Results.Ok(result);
+    }
+    catch (HttpRequestException ex)
+    {
+        return Results.Problem($"Failed to fetch moods: {ex.Message}");
+    }
 });
 
 

@@ -62,6 +62,33 @@ namespace PacifyFunctions.Helpers
             }
         }
 
+        public async Task<List<MoodLogs>> GetMoodsByUser(String userId)
+        {
+            try
+            {
+                List<MoodLogs> moodLogs = new List<MoodLogs>();
+                using FeedIterator<MoodLogs> moodLogFromCosmos = container.GetItemQueryIterator<MoodLogs>(
+                    queryText: $"SELECT * FROM c WHERE c.userId = '{userId}' "
+                );
+
+                while (moodLogFromCosmos.HasMoreResults)
+                {
+                    FeedResponse<MoodLogs> response = await moodLogFromCosmos.ReadNextAsync();
+
+                    foreach (MoodLogs item in response)
+                    {
+                        moodLogs.Add(item);
+                    }
+                }
+
+                return moodLogs;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<Thoughts> GetThought()
         {
             try

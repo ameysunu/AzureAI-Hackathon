@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @inject IHttpClientFactory HttpClientFactory
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
 
 @page "/view-mood"
 
@@ -33,11 +34,20 @@
 
                         <div class="allmoods-container">
                             <br />
-                            <p class="allmoods-item"> Statistics </p>
-                            <p class="allmoods-item"> Maya the bot </p>
-                            <p class="allmoods-item"> Community </p>
-                            <p class="allmoods-item"> Resources </p>
-                            <p class="allmoods-item"> Account </p>
+
+                            @if (allMoodLogs.Count > 0)
+                            {
+                                @foreach(var mood in allMoodLogs)
+                                {
+                                    <p class="allmoods-item"> @mood.Mood </p>
+                                }
+
+                            } 
+                            else
+                            {
+                                <p class="allmoods-item"> No mood found.</p>
+                            }
+
                         </div>
                     </div>
                 </div>
@@ -50,8 +60,51 @@
 </div>
 @code {
 
-    protected override async Task OnInitializedAsync()
+    List<MoodLogs> allMoodLogs = new List<MoodLogs>();
+
+    private bool _isFirstRender = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        List<MoodLogs> allMoodLogs = new List<MoodLogs>();    
+        if (!firstRender || !_isFirstRender) return;
+        _isFirstRender = false;
+
+        await FetchMoodLogs();
     }
+
+    private async Task FetchMoodLogs()
+    {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var UserId = authState.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+
+        if (string.IsNullOrEmpty(UserId))
+        {
+            Console.WriteLine("User ID is null or empty.");
+            return;
+        }
+
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var httpClient = HttpClientFactory.CreateClient();
+
+        string apiUrl = config["isTest"] == "true"
+            ? $"https://localhost:7563/getmoodbyuser?userId={UserId}"
+            : $"{config["ASPIRE_WEBAPISERVICE"]}/getmoodbyuser?userId={UserId}";
+
+        try
+        {
+            allMoodLogs = await httpClient.GetFromJsonAsync<List<MoodLogs>>(apiUrl);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching mood logs: {ex.Message}");
+        }
+    }
+
+
 }
