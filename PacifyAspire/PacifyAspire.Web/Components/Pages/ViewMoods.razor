@@ -17,20 +17,6 @@
                             All Moods
                         </p>
 
-                        <style>
-                            .allmoods-container {
-                            background-color: #6366b4;
-                            color: white;
-                            padding: 20px;
-                            border-radius: 20px;
-                            }
-
-                            .allmoods-item {
-                            border-radius: 20px;
-                            padding: 15px;
-                            background-color: #989AC7;
-                            }
-                        </style>
 
                         <div class="allmoods-container">
                             <br />
@@ -39,7 +25,27 @@
                             {
                                 @foreach(var mood in allMoodLogs)
                                 {
-                                    <p class="allmoods-item"> @mood.Mood </p>
+                                    <p class="allmoods-item" @onclick="() => ToggleExpand(mood.Id)"> 
+                                        @mood.Mood
+
+                                        @if (expandedMoodId == mood.Id)
+                                        {
+                                            <br />
+                                            <br />
+                                            @mood.MoodDescription
+
+                                            <br />
+                                            <p>Mood Intensity:  @mood.MoodIntensity</p>
+
+                                            <br />
+                                            <br />
+
+                                        <p> Logged at: @ConvertDateTime(mood.MoodDate)</p>
+
+
+
+                                        }
+                                    </p>
                                 }
 
                             } 
@@ -63,6 +69,7 @@
     List<MoodLogs> allMoodLogs = new List<MoodLogs>();
 
     private bool _isFirstRender = true;
+    private string expandedMoodId = String.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -106,5 +113,22 @@
         }
     }
 
+    private void ToggleExpand(String id)
+    {
+        if(expandedMoodId == id)
+        {
+            expandedMoodId = String.Empty;
+        } else
+        {
+            expandedMoodId = id;
+        }
+
+        StateHasChanged();
+    }
+
+    private string ConvertDateTime(DateTime date)
+    {
+        return date.ToString("d-MMM-yyyy");
+    }
 
 }
