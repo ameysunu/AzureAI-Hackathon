@@ -1,0 +1,60 @@
+﻿@inject ThoughtsController ThoughtsController
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpClientFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JS
+@rendermode InteractiveServer
+
+@page "/statistics"
+
+
+<style>
+    .main-page {
+    font-family: "Atkinson Hyperlegible Next", serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    padding-top: 5%;
+    padding-left: 2%;
+    flex-direction: column;12   
+    align-items: flex-start;
+    }
+
+    .welcome-text {
+    color: #009995;
+    font-size: 50px;
+    }
+</style>
+
+<div class="main-page" style="@(ThoughtsController.thoughts != null ? $"background-image: url('{ThoughtsController.thoughts.Image}'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 100vh;" : "")">
+    <Navbar />
+    <div>
+        <AuthorizeView>
+            <Authorized>
+                <script src="chart.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <div style="display: flex; height: 100vh;">
+                    <div style="flex: 1; padding: 20px;">
+                        <p class="welcome-text">
+                            Statistics
+                        </p>
+
+                        <p style="font-size: 20px;">Your weekly mood fluctuations</p>
+                        <canvas id="myChart"></canvas>
+
+                    </div>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <NotAuthorization />
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("createBarChart");
+    }
+
+}
