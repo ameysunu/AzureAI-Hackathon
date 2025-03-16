@@ -89,6 +89,34 @@ namespace PacifyFunctions.Helpers
             }
         }
 
+        public async Task<List<StatsModels>> GetStatsByUser(String userId)
+        {
+            try
+            {
+                List<StatsModels> statsData = new List<StatsModels>();
+
+                using FeedIterator<StatsModels> statsDataFromCosmos = container.GetItemQueryIterator<StatsModels>(
+                    queryText: $"SELECT * FROM c WHERE c.userId = '{userId}' "
+                );
+
+                while (statsDataFromCosmos.HasMoreResults)
+                {
+                    FeedResponse<StatsModels> response = await statsDataFromCosmos.ReadNextAsync();
+
+                    foreach (StatsModels item in response)
+                    {
+                        statsData.Add(item);
+                    }
+                }
+
+                return statsData;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
         public async Task<Thoughts> GetThought()
         {
             try
