@@ -7,7 +7,7 @@
             datasets: [{
                 label: 'Mood Score',
                 data: [3, 5, 2, 8, 6, 7, 4],
-                backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                backgroundColor: '#845ec2',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
             }]
