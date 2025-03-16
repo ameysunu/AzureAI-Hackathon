@@ -11,6 +11,8 @@ namespace PacifyFunctions.Models
         public Dictionary<string, double> longestMoodStreak { get; set; }
         public List<string> suddenMoodShift { get; set; }
         public List<string> unusualHighIntensityMoodPattern { get; set; }
+        public string userId { get; set; }
+        public string id { get; set; }
 
         public StatsModels()
         {
@@ -20,6 +22,8 @@ namespace PacifyFunctions.Models
             longestMoodStreak = new Dictionary<string, double>();
             suddenMoodShift = new List<string>();
             unusualHighIntensityMoodPattern = new List<string>();
+            userId = Guid.NewGuid().ToString();
+            id = Guid.NewGuid().ToString();
         }
 
     }

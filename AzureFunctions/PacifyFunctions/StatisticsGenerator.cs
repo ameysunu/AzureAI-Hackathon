@@ -19,42 +19,51 @@ namespace PacifyFunctions
         }
 
         [Function("StatisticsGenerator")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
+        public async Task Run([CosmosDBTrigger(
+            databaseName: "azureaihack",
+            containerName: "moodLogs",
+            Connection = "COSMOSDB_CONN_STRING",
+            LeaseContainerName = "leases",
+            CreateLeaseContainerIfNotExists = true)] IReadOnlyList<MoodLogs> input)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            _logger.LogInformation("CosmosDb trigger function processed a request.");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            MoodViewData data = JsonSerializer.Deserialize<MoodViewData>(requestBody);
-
-            CosmosHelper cosmosHelper = new CosmosHelper(_logger);
-            cosmosHelper.InitCosmosDb("moodLogs");
-
-            var moods = await cosmosHelper.GetMoodsByUser(data.userId);
-
-            if (moods.Count > 0)
+            if (input != null && input.Count > 0)
             {
-                try
+
+                CosmosHelper cosmosHelper = new CosmosHelper(_logger);
+                cosmosHelper.InitCosmosDb("moodLogs");
+
+                var moods = await cosmosHelper.GetMoodsByUser(input[0].userId);
+
+                if (moods.Count > 0)
                 {
-                    StatsModels statsModels = new StatsModels();
-                    StatsEngine statsEngine = new StatsEngine(_logger, statsModels);
+                    try
+                    {
+                        StatsModels statsModels = new StatsModels();
+                        statsModels.userId = input[0].userId;
 
-                    statsModels.frequentMoodIntensity = statsEngine.GetMostFrequentWords("intensity", moods);
-                    statsModels.frequentMood = statsEngine.GetMostFrequentWords("mood", moods);
+                        StatsEngine statsEngine = new StatsEngine(_logger, statsModels);
 
-                    statsEngine.GetMoodIntensityStatistics(moods);
-                    statsEngine.GetTimeBasedMoodTrends(moods);
-                    statsEngine.DetectAnomalies(moods);
+                        statsModels.frequentMoodIntensity = statsEngine.GetMostFrequentWords("intensity", moods);
+                        statsModels.frequentMood = statsEngine.GetMostFrequentWords("mood", moods);
 
-                    return new OkObjectResult(statsModels);
-                }
-                catch (Exception ex)
-                {
-                    return new BadRequestObjectResult($"Exception caught: {ex.Message}");
+                        statsEngine.GetMoodIntensityStatistics(moods);
+                        statsEngine.GetTimeBasedMoodTrends(moods);
+                        statsEngine.DetectAnomalies(moods);
+
+                        await cosmosHelper.UpsertStatsData(statsModels, "statsData");
+
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Exception caught: {ex.Message}");
+                    }
                 }
             }
 
 
-            return new OkObjectResult("No data");
+            //return new OkObjectResult("No data");
         }
     }
 }

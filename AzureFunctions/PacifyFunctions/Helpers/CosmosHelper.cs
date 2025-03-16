@@ -121,5 +121,21 @@ namespace PacifyFunctions.Helpers
             using HttpClient client = new HttpClient();
             return await client.GetByteArrayAsync(uri);
         }
+
+        public async Task UpsertStatsData(StatsModels statsData, String containerName)
+        {
+            try
+            {
+                var statsContainer = cosmosClient.GetContainer(databaseName, containerName);
+                statsData.id = statsData.userId;
+
+                await statsContainer.UpsertItemAsync(statsData, new PartitionKey(statsData.userId));
+            }
+            catch (CosmosException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
