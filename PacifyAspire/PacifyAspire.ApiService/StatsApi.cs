@@ -57,6 +57,8 @@ namespace PacifyAspire.ApiService
             public List<string> unusualHighIntensityMoodPattern { get; set; }
             public string userId { get; set; }
             public string id { get; set; }
+            public string therapyAdvisory { get; set; }
+            public string commonTriggers { get; set; }
         }
 
     }

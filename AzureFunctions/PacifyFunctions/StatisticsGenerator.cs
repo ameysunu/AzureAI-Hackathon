@@ -44,6 +44,7 @@ namespace PacifyFunctions
                         statsModels.userId = input[0].userId;
 
                         StatsEngine statsEngine = new StatsEngine(_logger, statsModels);
+                        OpenAIHelper openAIHelper = new OpenAIHelper(_logger);
 
                         statsModels.frequentMoodIntensity = statsEngine.GetMostFrequentWords("intensity", moods);
                         statsModels.frequentMood = statsEngine.GetMostFrequentWords("mood", moods);
@@ -51,6 +52,8 @@ namespace PacifyFunctions
                         statsEngine.GetMoodIntensityStatistics(moods);
                         statsEngine.GetTimeBasedMoodTrends(moods);
                         statsEngine.DetectAnomalies(moods);
+
+                        await statsEngine.GenerateAdvisoryMoodDescriptionNotes(moods, openAIHelper);
 
                         await cosmosHelper.UpsertStatsData(statsModels, "statsData");
 

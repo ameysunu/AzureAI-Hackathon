@@ -173,74 +173,15 @@
                     @if (statData != null && statData.id != null)
                     {
                     <div style="flex: 1; padding: 20px;">
-                            <div class="stats-container" style="background-color: #a92c72">
+                            <div class="stats-container" style="background-color: #a92c72; align-items: start">
                                 <div class="stats-items-box" style="background-color: #790044">
-                                <h3>Frequent Mood</h3>
-                                <p class="text-lg">You're often feeling <span class="font-bold">@statData.frequentMood</span> with a @statData.frequentMoodIntensity intensity.</p>
+                                <h3>Common Triggers</h3>
+                                <p> @statData.commonTriggers </p>
                             </div>
 
                                 <div class="stats-items-box" style="background-color: #790044">
-                                <h3>Mood Intensity Distribution</h3>
-                                <ul>
-                                    @foreach (var entry in statData.moodIntensityDistribution)
-                                    {
-                                        <li>@entry.Key: @entry.Value%</li>
-                                    }
-                                </ul>
-                            </div>
-
-                                <div class="stats-items-box" style="background-color: #790044">
-                                <p>Your mood variance score: <span class="font-bold">@statData.moodIntensityVariance</span></p>
-                            </div>
-
-                                <div class="stats-items-box" style="background-color: #790044">
-                                <h3>Daily Mood Changes</h3>
-                                <ul>
-                                    @foreach (var change in statData.dailyMoodChanges)
-                                    {
-                                        <li>@change</li>
-                                    }
-                                </ul>
-                            </div>
-
-                                <div class="stats-items-box" style="background-color: #790044">
-                                <h3>Common Moods Per Timeframe</h3>
-                                <ul>
-                                    @foreach (var timeframe in statData.commonMoodsPerTimeframe)
-                                    {
-                                        <li>@timeframe.Key: @timeframe.Value</li>
-                                    }
-                                </ul>
-                            </div>
-
-                                <div class="stats-items-box" style="background-color: #790044">
-                                <h3>Longest Mood Streak</h3>
-                                <ul>
-                                    @foreach (var streak in statData.longestMoodStreak)
-                                    {
-                                        <li>@streak.Key: @streak.Value days</li>
-                                    }
-                                </ul>
-                            </div>
-
-                                <div class="stats-items-box" style="background-color: #790044">
-                                <h3>Sudden Mood Shifts</h3>
-                                <ul>
-                                    @foreach (var shift in statData.suddenMoodShift)
-                                    {
-                                        <li>@shift</li>
-                                    }
-                                </ul>
-                            </div>
-
-                                <div class="stats-items-box" style="background-color: #790044">
-                                <h3>Unusual High-Intensity Mood Patterns</h3>
-                                <ul>
-                                    @foreach (var pattern in statData.unusualHighIntensityMoodPattern)
-                                    {
-                                        <li>@pattern</li>
-                                    }
-                                </ul>
+                                <h3>Mood Therapy Advisory</h3>
+                                <p> @statData.therapyAdvisory</p>
                             </div>
                         </div>
                     </div>

@@ -257,5 +257,25 @@ namespace PacifyFunctions.Helpers
             return streaks;
 
         }
+
+        public async Task GenerateAdvisoryMoodDescriptionNotes(List<MoodLogs> moods, OpenAIHelper openAIHelper)
+        {
+            StringBuilder moodDesc = new StringBuilder();
+            foreach(var mood in moods)
+            {
+                moodDesc.Append(mood.moodDescription);
+            }
+
+            if(moodDesc.Length > 0)
+            {
+                var therapyAdv = await openAIHelper.SendTextMessagePrompt("You're a therapist, read through the daily mood data logged by a user and return as a string", $"Give a summary and advise the user based on the following data - {moodDesc.ToString()}");
+                statsModel.therapyAdvisory = therapyAdv;
+
+                var commonTriggers = await openAIHelper.SendTextMessagePrompt("You're a therapist, read through the following data and prompt common triggers that affect user's moods and behaviors", $"Generate common triggers for this data - {moodDesc.ToString()}");
+                statsModel.commonTriggers = commonTriggers;
+            }
+        }
+
+
     }
 }

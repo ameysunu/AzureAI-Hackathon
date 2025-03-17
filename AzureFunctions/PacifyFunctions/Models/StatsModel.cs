@@ -13,6 +13,8 @@ namespace PacifyFunctions.Models
         public List<string> unusualHighIntensityMoodPattern { get; set; }
         public string userId { get; set; }
         public string id { get; set; }
+        public string therapyAdvisory { get; set; }
+        public string commonTriggers { get; set; }
 
         public StatsModels()
         {
@@ -24,6 +26,8 @@ namespace PacifyFunctions.Models
             unusualHighIntensityMoodPattern = new List<string>();
             userId = Guid.NewGuid().ToString();
             id = Guid.NewGuid().ToString();
+            therapyAdvisory = String.Empty;
+            commonTriggers = String.Empty;
         }
 
     }
