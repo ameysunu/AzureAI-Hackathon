@@ -23,9 +23,57 @@
     color: #009995;
     font-size: 50px;
     }
+
+    .stats-container {
+        background-color: #6366b4;
+        display: grid;
+        /* grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+        grid-auto-flow: dense;
+        gap: 10px;
+        padding: 20px;
+        justify-content: center;
+        align-items: start;
+        border-radius: 20px;
+    }
+
+    .stats-items-box {
+        background-color: #303377;
+        color: white;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        height: max-content;
+        border-radius: 20px;
+        word-wrap: break-word;
+        min-height: 150px;
+    }
+
+        .stats-items-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .stats-items-box ul li {
+                margin-bottom: 5px;
+            }
+
+        .stats-items-box:nth-child(2n) {
+            grid-column: span 2;
+        }
+
+        .stats-items-box:nth-child(3n) {
+            grid-row: span 2;
+        }
+
+        .stats-items-box:nth-child(5n) {
+            grid-column: span 1;
+            grid-row: span 1;
+        }
+
 </style>
 
-<div class="main-page" style="@(ThoughtsController.thoughts != null ? $"background-image: url('{ThoughtsController.thoughts.Image}'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 100vh;" : "")">
+<div class="main-page">
     <Navbar />
     <div>
         <AuthorizeView>
@@ -38,10 +86,165 @@
                             Statistics
                         </p>
 
-                        <p style="font-size: 20px;">Your weekly mood fluctuations</p>
-@*                         <canvas id="myChart" height="80"></canvas> *@
+                        <p style="font-size: 20px;">Understand your emotional patterns</p>
+                        @*                         <canvas id="myChart" height="80"></canvas> *@
+
+                        @if(statData != null && statData.id != null)
+                        {
+                            <div class="stats-container">
+                                <div class="stats-items-box">
+                                    <h3>Frequent Mood</h3>
+                                    <p class="text-lg">You're often feeling <span class="font-bold">@statData.frequentMood</span> with a @statData.frequentMoodIntensity intensity.</p>
+                                </div>
+
+                                <div class="stats-items-box">
+                                    <h3>Mood Intensity Distribution</h3>
+                                    <ul>
+                                        @foreach (var entry in statData.moodIntensityDistribution)
+                                        {
+                                            <li>@entry.Key: @entry.Value%</li>
+                                        }
+                                    </ul>
+                                </div>
+
+                                <div class="stats-items-box">
+                                    <p>Your mood variance score: <span class="font-bold">@statData.moodIntensityVariance</span></p>
+                                </div>
+
+                                <div class="stats-items-box">
+                                    <h3>Daily Mood Changes</h3>
+                                    <ul>
+                                        @foreach (var change in statData.dailyMoodChanges)
+                                        {
+                                            <li>@change</li>
+                                        }
+                                    </ul>
+                                </div>
+
+                                <div class="stats-items-box">
+                                    <h3>Common Moods Per Timeframe</h3>
+                                    <ul>
+                                        @foreach (var timeframe in statData.commonMoodsPerTimeframe)
+                                        {
+                                            <li>@timeframe.Key: @timeframe.Value</li>
+                                        }
+                                    </ul>
+                                </div>
+
+                                <div class="stats-items-box">
+                                    <h3>Longest Mood Streak</h3>
+                                    <ul>
+                                        @foreach (var streak in statData.longestMoodStreak)
+                                        {
+                                            <li>@streak.Key: @streak.Value days</li>
+                                        }
+                                    </ul>
+                                </div>
+
+                                <div class="stats-items-box">
+                                    <h3>Sudden Mood Shifts</h3>
+                                    <ul>
+                                        @foreach (var shift in statData.suddenMoodShift)
+                                        {
+                                            <li>@shift</li>
+                                        }
+                                    </ul>
+                                </div>
+
+                                <div class="stats-items-box">
+                                    <h3>Unusual High-Intensity Mood Patterns</h3>
+                                    <ul>
+                                        @foreach (var pattern in statData.unusualHighIntensityMoodPattern)
+                                        {
+                                            <li>@pattern</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+
+
+
+                        } else
+                        {
+                            <p>Loading...</p>
+                        }
 
                     </div>
+                    @if (statData != null && statData.id != null)
+                    {
+                    <div style="flex: 1; padding: 20px;">
+                            <div class="stats-container" style="background-color: #a92c72">
+                                <div class="stats-items-box" style="background-color: #790044">
+                                <h3>Frequent Mood</h3>
+                                <p class="text-lg">You're often feeling <span class="font-bold">@statData.frequentMood</span> with a @statData.frequentMoodIntensity intensity.</p>
+                            </div>
+
+                                <div class="stats-items-box" style="background-color: #790044">
+                                <h3>Mood Intensity Distribution</h3>
+                                <ul>
+                                    @foreach (var entry in statData.moodIntensityDistribution)
+                                    {
+                                        <li>@entry.Key: @entry.Value%</li>
+                                    }
+                                </ul>
+                            </div>
+
+                                <div class="stats-items-box" style="background-color: #790044">
+                                <p>Your mood variance score: <span class="font-bold">@statData.moodIntensityVariance</span></p>
+                            </div>
+
+                                <div class="stats-items-box" style="background-color: #790044">
+                                <h3>Daily Mood Changes</h3>
+                                <ul>
+                                    @foreach (var change in statData.dailyMoodChanges)
+                                    {
+                                        <li>@change</li>
+                                    }
+                                </ul>
+                            </div>
+
+                                <div class="stats-items-box" style="background-color: #790044">
+                                <h3>Common Moods Per Timeframe</h3>
+                                <ul>
+                                    @foreach (var timeframe in statData.commonMoodsPerTimeframe)
+                                    {
+                                        <li>@timeframe.Key: @timeframe.Value</li>
+                                    }
+                                </ul>
+                            </div>
+
+                                <div class="stats-items-box" style="background-color: #790044">
+                                <h3>Longest Mood Streak</h3>
+                                <ul>
+                                    @foreach (var streak in statData.longestMoodStreak)
+                                    {
+                                        <li>@streak.Key: @streak.Value days</li>
+                                    }
+                                </ul>
+                            </div>
+
+                                <div class="stats-items-box" style="background-color: #790044">
+                                <h3>Sudden Mood Shifts</h3>
+                                <ul>
+                                    @foreach (var shift in statData.suddenMoodShift)
+                                    {
+                                        <li>@shift</li>
+                                    }
+                                </ul>
+                            </div>
+
+                                <div class="stats-items-box" style="background-color: #790044">
+                                <h3>Unusual High-Intensity Mood Patterns</h3>
+                                <ul>
+                                    @foreach (var pattern in statData.unusualHighIntensityMoodPattern)
+                                    {
+                                        <li>@pattern</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    }
                 </div>
             </Authorized>
             <NotAuthorized>
@@ -52,9 +255,49 @@
 </div>
 
 @code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+
+    StatsModels statData = new StatsModels();
+
+    protected override async Task OnInitializedAsync()
     {
-        await JS.InvokeVoidAsync("createBarChart");
+        await FetchStats();
     }
+
+    private async Task FetchStats()
+    {
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var UserId = authState.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+
+        if (string.IsNullOrEmpty(UserId))
+        {
+            Console.WriteLine("User ID is null or empty.");
+            return;
+        }
+
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var httpClient = HttpClientFactory.CreateClient();
+
+        string apiUrl = config["isTest"] == "true"
+            ? $"https://localhost:7563/getstatsbyuser?userId={UserId}"
+            : $"{config["ASPIRE_WEBAPISERVICE"]}/getstatsbyuser?userId={UserId}";
+
+        try
+        {
+            List<StatsModels> data = await httpClient.GetFromJsonAsync<List<StatsModels>>(apiUrl);
+            statData = data.FirstOrDefault();
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching stats data: {ex.Message}");
+        }
+    }
+
 
 }
