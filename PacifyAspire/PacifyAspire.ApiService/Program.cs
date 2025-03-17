@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PacifyAspire.ApiService;
+using static PacifyAspire.ApiService.StatsApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddHttpClient<ThoughtsApi>();
 builder.Services.AddHttpClient<MoodLoggerApi>();
 builder.Services.AddHttpClient<GetMoodsApi>();
+builder.Services.AddHttpClient<StatsApi>();
 
 var app = builder.Build();
 
@@ -62,6 +64,26 @@ app.MapGet("/getmoodbyuser", async (HttpContext context, [FromServices] GetMoods
     try
     {
         List<MoodLogs> result = await getMoodsApi.GetMoodsByUser(new MoodViewData { userId = userId });
+        return Results.Ok(result);
+    }
+    catch (HttpRequestException ex)
+    {
+        return Results.Problem($"Failed to fetch moods: {ex.Message}");
+    }
+});
+
+app.MapGet("/getstatsbyuser", async (HttpContext context, [FromServices] StatsApi statsApi) =>
+{
+    var userId = context.Request.Query["userId"].ToString();
+
+    if (string.IsNullOrEmpty(userId))
+    {
+        return Results.BadRequest("User ID is null or empty");
+    }
+
+    try
+    {
+        List<StatsModels> result = await statsApi.GetStatsByUser(new MoodViewData { userId = userId });
         return Results.Ok(result);
     }
     catch (HttpRequestException ex)
