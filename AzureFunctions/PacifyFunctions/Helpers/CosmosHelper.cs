@@ -165,5 +165,81 @@ namespace PacifyFunctions.Helpers
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<List<CommunityDataModel>> GetCommunityData()
+        {
+            try
+            {
+                List<CommunityDataModel> communityData = new List<CommunityDataModel>();
+                using FeedIterator<CommunityDataModel> communityDataFromCosmos = container.GetItemQueryIterator<CommunityDataModel>(
+                    queryText: $"SELECT * FROM c"
+                );
+
+                while (communityDataFromCosmos.HasMoreResults)
+                {
+                    FeedResponse<CommunityDataModel> response = await communityDataFromCosmos.ReadNextAsync();
+
+                    foreach (CommunityDataModel item in response)
+                    {
+                        communityData.Add(item);
+                    }
+                }
+
+                return communityData;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task InsertComments(CommunityDataModel data, string postId)
+        {
+            try
+            {
+                ItemResponse<CommunityDataModel> response = await container.ReadItemAsync<CommunityDataModel>(
+                    postId, new PartitionKey(postId)
+                );
+
+                CommunityDataModel post = response.Resource;
+
+                if (post == null)
+                {
+                    _logger.LogError($"Post with ID {postId} not found.");
+                    return;
+                }
+
+                if (post.comments == null)
+                {
+                    post.comments = new List<CommunityDataModel>();
+                }
+
+                post.comments.Add(data);
+
+
+                var upsertResponse = await container.UpsertItemAsync(post, new PartitionKey(postId));
+                _logger.LogInformation($"Upserted Item Status: {upsertResponse.StatusCode}");
+
+            }
+            catch (CosmosException ex)
+            {
+                _logger.LogError($"CosmosDB Error: {ex.StatusCode} - {ex.Message}");
+                throw;
+            }
+        }
+
+
+        public async Task InsertPost(CommunityDataModel data)
+        {
+            try
+            {
+                await container.CreateItemAsync(data, new PartitionKey(data.id));
+            }
+            catch (CosmosException ex)
+            {
+                _logger.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
