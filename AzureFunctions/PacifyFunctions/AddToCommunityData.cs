@@ -30,17 +30,26 @@ namespace PacifyFunctions
                 CosmosHelper cosmosHelper = new CosmosHelper(_logger);
                 cosmosHelper.InitCosmosDb("communityData");
 
+                OpenAIHelper openAIHelper = new OpenAIHelper(_logger);
+                var profanityCheck = await openAIHelper.SendTextMessagePrompt("You are a profanity based checking system in strings espeically explicit, offensive or highly inappropriate language. You can ignore mild language and understand context before determining it is profanity or not. If the statement is aimed with even a mild language at an individual flag it as profanity, if profanity return true, else false", $"Check if the following statement contains profanity in it: {reqJson.contents.contents}");
 
-                if (reqJson.isComments)
+                if (profanityCheck.ToLower().Contains("false"))
                 {
-                    _logger.LogInformation("Type is comments");
-                    await cosmosHelper.InsertComments(reqJson.contents, reqJson.postId);
-                   
-                    
+                    if (reqJson.isComments)
+                    {
+                        _logger.LogInformation("Type is comments");
+                        await cosmosHelper.InsertComments(reqJson.contents, reqJson.postId);
+
+
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Type is post");
+                        await cosmosHelper.InsertPost(reqJson.contents);
+                    }
                 } else
                 {
-                    _logger.LogInformation("Type is post");
-                    await cosmosHelper.InsertPost(reqJson.contents);
+                    _logger.LogWarning("Profanity found, not creating an entry");
                 }
 
                     return new OkObjectResult("Welcome to Azure Functions!");
