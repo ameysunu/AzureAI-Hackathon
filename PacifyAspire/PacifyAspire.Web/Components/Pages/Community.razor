@@ -329,7 +329,15 @@
         contents.userId = userId;
         contents.userName = userName;
         contents.createdOn = DateTime.Now;
-        contents.contents = postData;
+
+        if(isComment)
+        {
+            contents.contents = comment;
+        } else 
+        {
+            contents.contents = postData;
+        }
+
         contents.upVotes = 0;
         contents.comments = [];
 
