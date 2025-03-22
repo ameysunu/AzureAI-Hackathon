@@ -54,7 +54,8 @@
                             /* Sidebar */
                             .sidebar {
                             width: 25%;
-                            background: white;
+                                background: #289686;
+                                color: white;
                             padding: 20px;
                             border-radius: 10px;
                             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -68,7 +69,7 @@
 
                             /* Create Post */
                             .create-post {
-                            background: white;
+                                background: #289686;
                             padding: 15px;
                             border-radius: 10px;
                             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -80,13 +81,15 @@
                             width: 100%;
                             height: 80px;
                             border: 1px solid #ccc;
-                            border-radius: 5px;
+                            border-radius: 20px;
                             padding: 10px;
+                            background: #95D1BC;
+                            color: white
                             }
 
                             .create-post button {
                             margin-top: 10px;
-                            background-color: #0077b6;
+                            background-color: #0076be;
                             color: white;
                             border: none;
                             padding: 10px;
@@ -95,12 +98,13 @@
                             }
 
                             .create-post button:hover {
-                            background-color: #005b8c;
+                            background-color: #0087b7;
                             }
 
                             /* Posts */
                             .post {
-                            background: white;
+                                background: #289686;
+                            color: white;
                             padding: 15px;
                             margin-top: 20px;
                             border-radius: 10px;
@@ -126,23 +130,51 @@
                             margin-right: 10px;
                             }
 
-                            .loader {
-                            width: 120px;
-                            height: 22px;
-                            border-radius: 20px;
-                            color: #514b82;
-                            border: 2px solid;
-                            position: relative;
+                            .comment-btn:hover {
+                            background: #007bff;
+                            color: white;
                             }
 
-                            .loader::before {
-                            content: "";
-                            position: absolute;
-                            margin: 2px;
-                            inset: 0 100% 0 0;
-                            border-radius: inherit;
-                            background: currentColor;
-                            animation: l6 2s infinite;
+                            /* Comment Box */
+                            .comment-box {
+                            margin-top: 10px;
+                            padding: 10px;
+                            border-radius: 8px;
+                            background: #44ad88;
+                            display: flex;
+                            flex-direction: column;
+                            color: white;
+                            gap: 10px;
+                            }
+
+                            .comment-box textarea {
+                            width: 100%;
+                            min-height: 50px;
+                            padding: 8px;
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                            background: #fff5ff;
+                            resize: none;
+                            }
+
+                            /* Submit Button */
+                            .submit-comment-btn {
+                            background: #007bff;
+                            color: white;
+                            border: none;
+                            padding: 8px 12px;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            transition: 0.2s;
+                            }
+
+                            .submit-comment-btn:hover {
+                            background: #0056b3;
+                            }
+
+                            .submit-comment-btn:disabled {
+                            background: #cccccc;
+                            cursor: not-allowed;
                             }
 
                         </style>
@@ -163,7 +195,7 @@
 
                                     @if (!isPosted)
                                     {
-                                        <button @onclick=WritePosts>Post</button>
+                                        <button @onclick="() => WritePostsOrComments(false, Guid.NewGuid().ToString())">Post</button>
                                     } else
                                     {
                                         <p> Posting... </p>
@@ -185,9 +217,24 @@
                                             <p>@data.contents</p>
                                             <div class="actions">
                                                 <button>❤️ Like</button>
-                                                <button>💬 Comment</button>
+                                                <button @onclick=" () => ToggleCommentBox(data.id)">💬 Comment</button>
                                             </div>
                                         </div>
+
+                                        @if (showCommentBox == data.id)
+                                        {
+                                            @foreach (var comment in data.comments)
+                                            {
+                                                <div class="comment-box">
+                                                    <p> <strong> @comment.userName </strong> : @comment.contents</p>
+                                                </div>
+                                            }
+
+                                            <div class="comment-box">
+                                                <textarea @bind="comment" placeholder="Write a comment..."></textarea>
+                                                <button class="submit-comment-btn" @onclick="() => WritePostsOrComments(true, data.id)">Post Comment</button>
+                                            </div>
+                                        }
                                     }
                                 } 
                                 else
@@ -218,6 +265,8 @@
     String userName;
     bool _isFirstRender = true;
     bool isPosted = false;
+    String showCommentBox = String.Empty;
+    String comment = String.Empty;
 
     CommInput postCommData = new CommInput();
 
@@ -238,6 +287,12 @@
         userId = authState.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
         userName = authState.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value;
     }
+
+    private void ToggleCommentBox(string postId)
+    {
+        showCommentBox = showCommentBox == postId ? null : postId;
+    }
+
 
     private async Task<List<CommunityDataModel>> LoadCommunityData()
     {
@@ -264,7 +319,7 @@
         }
     }
 
-    private async Task WritePosts()
+    private async Task WritePostsOrComments(bool isComment, String postId)
     {
         isPosted = true;
 
@@ -279,8 +334,8 @@
         contents.comments = [];
 
 
-        postCommData.isComments = false;
-        postCommData.postId = Guid.NewGuid().ToString();
+        postCommData.isComments = isComment;
+        postCommData.postId = postId;
         postCommData.contents = contents;
 
         var config = new ConfigurationBuilder()
