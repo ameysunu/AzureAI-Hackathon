@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PacifyAspire.ApiService;
+using System.Text.Json;
 using static PacifyAspire.ApiService.StatsApi;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +18,8 @@ builder.Services.AddHttpClient<ThoughtsApi>();
 builder.Services.AddHttpClient<MoodLoggerApi>();
 builder.Services.AddHttpClient<GetMoodsApi>();
 builder.Services.AddHttpClient<StatsApi>();
+builder.Services.AddHttpClient<GetCommunityData>();
+builder.Services.AddHttpClient<PostsApi>();
 
 var app = builder.Build();
 
@@ -89,6 +92,36 @@ app.MapGet("/getstatsbyuser", async (HttpContext context, [FromServices] StatsAp
     catch (HttpRequestException ex)
     {
         return Results.Problem($"Failed to fetch moods: {ex.Message}");
+    }
+});
+
+app.MapGet("/getcommdata", async (GetCommunityData getCommunityData) =>
+{
+    return await getCommunityData.GetCommunityDataApi();
+});
+
+app.MapPost("/writeposts", async (HttpContext context, [FromServices] PostsApi postApi) =>
+{
+    try
+    {
+        var commInput = await context.Request.ReadFromJsonAsync<CommInput>();
+        if (commInput == null)
+        {
+            context.Response.StatusCode = 400;
+            await context.Response.WriteAsync("Invalid request data");
+            return;
+        }
+
+
+        await postApi.CreatePosts(commInput);
+        context.Response.StatusCode = 200;
+        await context.Response.WriteAsync("Post created!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("Internal Server Error");
     }
 });
 

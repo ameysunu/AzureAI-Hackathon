@@ -1,0 +1,317 @@
+﻿@inject ThoughtsController ThoughtsController
+@inject NavigationManager Navigation
+@inject IHttpClientFactory HttpClientFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@rendermode InteractiveServer
+
+@page "/community"
+
+<PageTitle>Community</PageTitle>
+
+
+<div class="main-page" style="@(ThoughtsController.thoughts != null ? $"background-image: url('{ThoughtsController.thoughts.Image}'); background-size: cover; background-position: center; background-repeat: no-repeat; min-height: 100vh;" : "")">
+    <Navbar />
+    <div>
+        <AuthorizeView>
+            <Authorized>
+                <div style="display: flex; height: 100vh;">
+                    <div style="flex: 1; padding: 20px;">
+                        <p class="welcome-text">
+                            Community
+                        </p>
+
+                        <style>
+                            .main-page {
+                            font-family: "Atkinson Hyperlegible Next", serif;
+                            font-optical-sizing: auto;
+                            font-style: normal;
+                            padding-top: 5%;
+                            padding-left: 2%;
+                            flex-direction: column;
+                            align-items: flex-start;
+                            }
+
+                            .welcome-text {
+                            color: #009995;
+                            font-size: 50px;
+                            }
+
+                            /* Header */
+                            header {
+                            background-color: #0077b6;
+                            color: white;
+                            text-align: center;
+                            padding: 20px;
+                            }
+
+                            /* Layout */
+                            .container {
+                            display: flex;
+                            max-width: 1000px;
+                            margin: 20px auto;
+                            }
+
+                            /* Sidebar */
+                            .sidebar {
+                            width: 25%;
+                            background: white;
+                            padding: 20px;
+                            border-radius: 10px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            }
+
+                            /* Main Content */
+                            .feed {
+                            flex-grow: 1;
+                            margin-left: 20px;
+                            }
+
+                            /* Create Post */
+                            .create-post {
+                            background: white;
+                            padding: 15px;
+                            border-radius: 10px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            display: flex;
+                            flex-direction: column;
+                            }
+
+                            .create-post textarea {
+                            width: 100%;
+                            height: 80px;
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                            padding: 10px;
+                            }
+
+                            .create-post button {
+                            margin-top: 10px;
+                            background-color: #0077b6;
+                            color: white;
+                            border: none;
+                            padding: 10px;
+                            cursor: pointer;
+                            border-radius: 5px;
+                            }
+
+                            .create-post button:hover {
+                            background-color: #005b8c;
+                            }
+
+                            /* Posts */
+                            .post {
+                            background: white;
+                            padding: 15px;
+                            margin-top: 20px;
+                            border-radius: 10px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            }
+
+                            .user-info {
+                            display: flex;
+                            align-items: center;
+                            }
+
+                            .user-info img {
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            margin-right: 10px;
+                            }
+
+                            .actions button {
+                            background: none;
+                            border: none;
+                            cursor: pointer;
+                            margin-right: 10px;
+                            }
+
+                            .loader {
+                            width: 120px;
+                            height: 22px;
+                            border-radius: 20px;
+                            color: #514b82;
+                            border: 2px solid;
+                            position: relative;
+                            }
+
+                            .loader::before {
+                            content: "";
+                            position: absolute;
+                            margin: 2px;
+                            inset: 0 100% 0 0;
+                            border-radius: inherit;
+                            background: currentColor;
+                            animation: l6 2s infinite;
+                            }
+
+                        </style>
+
+                        <div class="container">
+
+                            <aside class="sidebar">
+                                <h2>Community Guidelines</h2>
+                                <ul>
+                                    <li>Be kind, respectful, and supportive of others.</li>
+                                    <li>Do not use profanity or swear words.</li>
+                                </ul>
+                            </aside>
+
+                            <main class="feed">
+                                <div class="create-post">
+                                    <textarea @bind="postData" placeholder="Share something positive or ask the community something"></textarea>
+
+                                    @if (!isPosted)
+                                    {
+                                        <button @onclick=WritePosts>Post</button>
+                                    } else
+                                    {
+                                        <p> Posting... </p>
+                                    }
+
+                                </div>
+
+                                @if(communityData != null && communityData.Count > 0)
+                                {
+                                    @foreach(var data in communityData)
+                                    {
+                                        <div class="post">
+                                            <div class="user-info">
+                                                <div>
+                                                    <h4>@data.userName</h4>
+                                                    <p>@data.createdOn</p>
+                                                </div>
+                                            </div>
+                                            <p>@data.contents</p>
+                                            <div class="actions">
+                                                <button>❤️ Like</button>
+                                                <button>💬 Comment</button>
+                                            </div>
+                                        </div>
+                                    }
+                                } 
+                                else
+                                {
+                                    <div class="post">
+                                        <h4>Loading...</h4>
+                                    </div>
+                                }
+
+                            </main>
+                        </div>
+                    </div>
+                </div>
+            </Authorized>
+            <NotAuthorized>
+                <NotAuthorization />
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+</div>
+
+@code {
+
+    private String postData = String.Empty;
+    List<CommunityDataModel> communityData = new List<CommunityDataModel>();
+    AuthenticationState authState;
+    String userId;
+    String userName;
+    bool _isFirstRender = true;
+    bool isPosted = false;
+
+    CommInput postCommData = new CommInput();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || !_isFirstRender) return;
+        _isFirstRender = false;
+
+        await InitUserState();
+        communityData = await LoadCommunityData();
+
+        StateHasChanged();
+    }
+
+    private async Task InitUserState()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        userId = authState.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+        userName = authState.User.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")?.Value;
+    }
+
+    private async Task<List<CommunityDataModel>> LoadCommunityData()
+    {
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var httpClient = HttpClientFactory.CreateClient();
+
+        string apiUrl = config["isTest"] == "true"
+            ? $"https://localhost:7563/getcommdata"
+            : $"{config["ASPIRE_WEBAPISERVICE"]}/getcommdata";
+
+        try
+        {
+            List<CommunityDataModel> data = await httpClient.GetFromJsonAsync<List<CommunityDataModel>>(apiUrl);
+            return data;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching stats data: {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task WritePosts()
+    {
+        isPosted = true;
+
+        CommunityDataModel contents = new CommunityDataModel();
+
+        contents.id = Guid.NewGuid().ToString();
+        contents.userId = userId;
+        contents.userName = userName;
+        contents.createdOn = DateTime.Now;
+        contents.contents = postData;
+        contents.upVotes = 0;
+        contents.comments = [];
+
+
+        postCommData.isComments = false;
+        postCommData.postId = Guid.NewGuid().ToString();
+        postCommData.contents = contents;
+
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var httpClient = HttpClientFactory.CreateClient();
+
+        string apiUrl = config["isTest"] == "true"
+            ? $"https://localhost:7563/writeposts"
+            : $"{config["ASPIRE_WEBAPISERVICE"]}/writeposts";
+
+        try
+        {
+
+            await httpClient.PostAsJsonAsync(apiUrl, postCommData);
+            Navigation.NavigateTo("/dashboard");
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching stats data: {ex.Message}");
+            isPosted = false;
+        }
+    }
+
+    public class CommInput
+    {
+        public bool isComments { get; set; }
+        public string postId { get; set; }
+        public CommunityDataModel contents { get; set; }
+    }
+}
