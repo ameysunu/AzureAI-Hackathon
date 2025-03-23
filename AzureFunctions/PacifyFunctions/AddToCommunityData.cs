@@ -33,6 +33,8 @@ namespace PacifyFunctions
                 OpenAIHelper openAIHelper = new OpenAIHelper(_logger);
                 var profanityCheck = await openAIHelper.SendTextMessagePrompt("You are a profanity based checking system in strings espeically explicit, offensive or highly inappropriate language. You can ignore mild language and understand context before determining it is profanity or not. If the statement is aimed with even a mild language at an individual flag it as profanity, if profanity return true, else false", $"Check if the following statement contains profanity in it: {reqJson.contents.contents}");
 
+                RedisHelper redisHelper = new RedisHelper(_logger);
+
                 if (profanityCheck.ToLower().Contains("false"))
                 {
                     if (reqJson.isComments)
@@ -47,6 +49,11 @@ namespace PacifyFunctions
                         _logger.LogInformation("Type is post");
                         await cosmosHelper.InsertPost(reqJson.contents);
                     }
+
+                    var data = await cosmosHelper.GetCommunityData();
+                    await redisHelper.SetDataToRedisCache("communityData", JsonSerializer.Serialize<List<CommunityDataModel>>(data));
+
+
                 } else
                 {
                     _logger.LogWarning("Profanity found, not creating an entry");
