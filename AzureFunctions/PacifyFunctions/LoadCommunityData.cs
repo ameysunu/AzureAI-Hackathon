@@ -29,7 +29,7 @@ namespace PacifyFunctions
 
                 if (cacheData != null)
                 {
-                    return new OkObjectResult(JsonSerializer.Deserialize<CommunityDataModel>(cacheData));
+                    return new OkObjectResult(JsonSerializer.Deserialize<List<CommunityDataModel>>(cacheData));
                 }
                 else
                 {
