@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using PacifyFunctions.Helpers;
+using PacifyFunctions.Models;
+using System.Text.Json;
 
 namespace PacifyFunctions
 {
@@ -22,13 +24,23 @@ namespace PacifyFunctions
 
             try
             {
-                CosmosHelper cosmosHelper = new CosmosHelper(_logger);
-                cosmosHelper.InitCosmosDb("communityData");
+                RedisHelper redisHelper = new RedisHelper(_logger);
+                var cacheData = await redisHelper.GetCacheDataFromRedis("communityData");
 
-                var data = await cosmosHelper.GetCommunityData();
+                if (cacheData != null)
+                {
+                    return new OkObjectResult(JsonSerializer.Deserialize<List<CommunityDataModel>>(cacheData));
+                }
+                else
+                {
+                    CosmosHelper cosmosHelper = new CosmosHelper(_logger);
+                    cosmosHelper.InitCosmosDb("communityData");
 
-                return new OkObjectResult(data);
+                    var data = await cosmosHelper.GetCommunityData();
+                    await redisHelper._redisCache.StringSetAsync("communityData", JsonSerializer.Serialize<List<CommunityDataModel>>(data));
 
+                    return new OkObjectResult(data);
+                }
             }
             catch (Exception ex)
             {

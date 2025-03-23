@@ -24,15 +24,27 @@ namespace PacifyFunctions
 
             try
             {
+                RedisHelper redisHelper = new RedisHelper(_logger);
+                var cacheData = await redisHelper.GetCacheDataFromRedis("thoughtsData");
 
-                CosmosHelper cosmosHelper = new CosmosHelper(_logger);
-                cosmosHelper.InitCosmosDb("positivitymessages");
+                if (cacheData != null)
+                {
+                    var cacheThoughts = JsonSerializer.Deserialize<Thoughts>(cacheData);
+                    return new OkObjectResult(cacheThoughts);
+                }
+                else
+                {
 
-                var thought = await cosmosHelper.GetThought();
-                var jsonThought = JsonSerializer.Serialize<Thoughts>(thought);
+                    CosmosHelper cosmosHelper = new CosmosHelper(_logger);
+                    cosmosHelper.InitCosmosDb("positivitymessages");
 
+                    var thought = await cosmosHelper.GetThought();
+                    var jsonThought = JsonSerializer.Serialize<Thoughts>(thought);
 
-                return new OkObjectResult(jsonThought);
+                    await redisHelper._redisCache.StringSetAsync("thoughtsData", jsonThought);
+
+                    return new OkObjectResult(jsonThought);
+                }
             } 
             catch (Exception ex)
             {
