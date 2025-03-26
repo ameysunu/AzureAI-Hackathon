@@ -81,10 +81,18 @@
                                 {
                                     <p style="font-size: 15px; align-content: start;">Generate an up to date mood summary as PDF report to get a detailed breakdown of your moods over time. Whether you're tracking this for personal growth or sharing with a therapist, the mood insights are one click away.</p>
                                     <br />
-                                    <div class="stats-box" style="font-size: 18px;">
-                                        Generate
-                                    </div>
-                                } else
+
+                                    @if (!isGenerateTriggered)
+                                    {
+                                        <div class="stats-box" style="font-size: 18px;" @onclick="GenerateReport">
+                                            Generate
+                                        </div>
+                                    } else
+                                    {
+                                        <p style="font-size: 18px;"> Generating... Please wait</p>
+                                    }
+                                } 
+                                else
                                 {
                                     <p style="font-size: 15px;"> This feature will be available soon. Stay tuned.</p>
                                 }
@@ -102,6 +110,8 @@
 @code {
 
     private string selectedText { get; set; }
+    private string pdfData { get; set; }
+    private bool isGenerateTriggered = false;
 
     private void SelectOption(int val)
     {
@@ -126,6 +136,35 @@
             default:
                 selectedText = "";
                 break;
+        }
+    }
+
+    private async Task GenerateReport()
+    {
+        var config = new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddEnvironmentVariables()
+        .Build();
+
+        isGenerateTriggered = true;
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (authState != null && authState.User != null && authState.User.Identity != null && authState.User.Identity.IsAuthenticated)
+        {
+            var httpClient = HttpClientFactory.CreateClient();
+
+            if (config["isTest"] == "true")
+            {
+                pdfData = await httpClient.GetStringAsync($"https://localhost:7563/generatepdf");
+                isGenerateTriggered = false;
+            }
+            else
+            {
+                pdfData = await httpClient.GetStringAsync($"https://localhost:7563/generatepdf");
+                isGenerateTriggered = false;
+            }
+
         }
     }
 

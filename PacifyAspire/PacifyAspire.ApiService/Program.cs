@@ -20,6 +20,7 @@ builder.Services.AddHttpClient<GetMoodsApi>();
 builder.Services.AddHttpClient<StatsApi>();
 builder.Services.AddHttpClient<GetCommunityData>();
 builder.Services.AddHttpClient<PostsApi>();
+builder.Services.AddHttpClient<GeneratePdf>();
 
 var app = builder.Build();
 
@@ -123,6 +124,11 @@ app.MapPost("/writeposts", async (HttpContext context, [FromServices] PostsApi p
         context.Response.StatusCode = 500;
         await context.Response.WriteAsync("Internal Server Error");
     }
+});
+
+app.MapGet("/generatepdf", async (GeneratePdf generatePdf) => 
+{
+    return await generatePdf.GenerateMoodsPdf();
 });
 
 
