@@ -6,76 +6,127 @@
 @page "/resources"
 
 <PageTitle>Resources</PageTitle>
-    <style>
-        .main-page {
-            font-family: "Atkinson Hyperlegible Next", serif;
-            font-optical-sizing: auto;
-            font-style: normal;
-            padding-top: 5%;
-            padding-left: 2%;
-            flex-direction: column;
-            align-items: flex-start;
-        }
+<style>
+    .main-page {
+    font-family: "Atkinson Hyperlegible Next", serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+    padding-top: 5%;
+    padding-left: 2%;
+    flex-direction: column;
+    align-items: flex-start;
+    }
 
-         .welcome-text {
-            color: #009995;
-            font-size: 50px;
-         }
+    .welcome-text {
+    color: #009995;
+    font-size: 50px;
+    }
 
     .stats-box {
-        width: 300px;
-        background-color: #ac3d6d;
-        color: white;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        height: max-content;
-        border-radius: 20px;
+    width: 300px;
+    background-color: #ac3d6d;
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    height: max-content;
+    border-radius: 20px;
     }
 
     .stats-item-box {
-        border-radius: 20px;
-        padding: 15px;
-        background-color: #d35667;
+    border-radius: 20px;
+    padding: 15px;
+    background-color: #d35667;
     }
 
     .stats-item-box:hover {
-        transform: scale(1.1);
-        box-shadow: 0px 10px 20px rgba(211, 86, 103, 0.4);
-        background-color: #5A0027;
+    transform: scale(1.1);
+    box-shadow: 0px 10px 20px rgba(211, 86, 103, 0.4);
+    background-color: #5A0027;
     } 
 
-     </style>
+</style>
 
 <div class="main-page">
     <Navbar />
     <div>
-         <AuthorizeView>
-             <Authorized>
-                  <div style="display: flex; height: 100vh;">
+        <AuthorizeView>
+            <Authorized>
+                <div style="display: flex; height: 100vh;">
                     <div style="flex: 1; padding: 20px;">
                         <p class="welcome-text">
                             Resources
                         </p>
                         <div class="stats-box">
                             <br />
-                            <p class="stats-item-box"> Generate Moods Summary </p>
-                            <p class="stats-item-box"> Yoga and Meditation </p>
-                            <p class="stats-item-box"> Habit Tracker </p>
-                            <p class="stats-item-box"> Personalized Recommendations </p>
+                            <p class="stats-item-box" @onclick='() => SelectOption(0)'>Generate Moods Summary</p>
+                            <p class="stats-item-box" @onclick='() => SelectOption(1)'>Yoga and Meditation</p>
+                            <p class="stats-item-box" @onclick='() => SelectOption(2)'>Habit Tracker</p>
+                            <p class="stats-item-box" @onclick='() => SelectOption(3)'>Personalized Recommendations</p>
                         </div>
 
                     </div>
 
-                    <h1 style="padding: 10%; color: #5A0027">
-                        Select one of the options to get started.
-                    </h1>
-                  </div>
-             </Authorized>
-         </AuthorizeView>
+                    <div style="flex: 1; padding: 10%; color: #5A0027; font-size: 24px;">
+                        @if (string.IsNullOrEmpty(selectedText))
+                        {
+                            <p>Select one of the options to get started.</p>
+                        }
+                        else
+                        {
+                            <div>
+                                @selectedText
+
+                                @if (selectedText == "Generate Moods Summary")
+                                {
+                                    <p style="font-size: 15px; align-content: start;">Generate an up to date mood summary as PDF report to get a detailed breakdown of your moods over time. Whether you're tracking this for personal growth or sharing with a therapist, the mood insights are one click away.</p>
+                                    <br />
+                                    <div class="stats-box" style="font-size: 18px;">
+                                        Generate
+                                    </div>
+                                } else
+                                {
+                                    <p style="font-size: 15px;"> This feature will be available soon. Stay tuned.</p>
+                                }
+
+                            </div>
+
+                        }
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     </div>
 </div>
 
 @code {
+
+    private string selectedText { get; set; }
+
+    private void SelectOption(int val)
+    {
+        switch (val)
+        {
+            case 0:
+                selectedText = "Generate Moods Summary";
+                break;
+
+            case 1:
+                selectedText = "Yoga and Meditation";
+                break;
+
+            case 2:
+                selectedText = "Habit Tracker";
+                break;
+
+            case 3:
+                selectedText = "Personalized Recommendations";
+                break;
+
+            default:
+                selectedText = "";
+                break;
+        }
+    }
 
 }
